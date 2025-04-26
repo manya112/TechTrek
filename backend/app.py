@@ -7,7 +7,8 @@ from mongodb import (
     update_note, delete_note
 )
 import jwt
-import datetime
+from datetime import datetime
+from auth import token_required
 
 app = Flask(__name__)
 CORS(app)
@@ -74,6 +75,7 @@ def login():
             "message": "Login successful",
             "token": token,
             "user": {
+                "_id": str(user['_id']),  # ensure it's stringified if it's an ObjectId
                 "name": user['name'],
                 "email": user['email']
             }
@@ -92,21 +94,48 @@ def get_notes():
     except Exception as e:
         print(f"Error fetching notes: {e}")
         return jsonify({"error": str(e)}), 500
+@app.route('/api/notes/<user_id>', methods=['GET'])
+def get_user_notes(user_id):
+    try:
+        notes = get_all_notes(user_id)  # Define this function
+        return jsonify(notes), 200
+    except Exception as e:
+        print(f"Error fetching notes for user {user_id}: {e}")
+        return jsonify({"error": str(e)}), 500
 
+# @app.route('/api/notes', methods=['POST'])
+# def post_note():
+#     data = request.get_json()
+#     content = data.get("content")
+
+#     if not content:
+#         return jsonify({"error": "Content is required"}), 400
+
+#     try:
+#         note_id = create_note(content)
+#         return jsonify({"message": "Note created", "id": note_id}), 201
+#     except Exception as e:
+#         print(f"Error creating note: {e}")
+#         return jsonify({"error": str(e)}), 500
 @app.route('/api/notes', methods=['POST'])
 def post_note():
     data = request.get_json()
     content = data.get("content")
+    user_id = data.get("user_id")
 
     if not content:
         return jsonify({"error": "Content is required"}), 400
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
 
     try:
-        note_id = create_note(content)
+        note_id = create_note(content, user_id)
         return jsonify({"message": "Note created", "id": note_id}), 201
     except Exception as e:
         print(f"Error creating note: {e}")
         return jsonify({"error": str(e)}), 500
+
+
 
 @app.route('/api/notes/<note_id>', methods=['PUT'])
 def edit_note(note_id):
@@ -127,6 +156,7 @@ def edit_note(note_id):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/notes/<note_id>', methods=['DELETE'])
+# @token_required
 def remove_note(note_id):
     try:
         deleted = delete_note(note_id)

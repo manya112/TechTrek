@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import HomePage2 from './pages/HomePage2';
-import Quiz from './components/Quiz';
+import Quiz from './pages/Quiz';
 import Notepad from './components/notepad';
 import Layout from './components/Layout';
 import Profile from './components/Profile';
@@ -14,6 +14,7 @@ import VibrantLoginPage from './pages/Login';
 import VibrantSignupPage from './pages/Signup';
 import Login2 from './pages/Login2';
 import Signup from './pages/Signup2';
+import QuizPage from './pages/QuizPage';
 
 
 
@@ -29,7 +30,7 @@ const App = () => {
           {/* <Route path="/home" element={<Home/>} /> */}
           <Route path="/signup" element={<Signup/>} />
           <Route path="/login" element={<Login2/>} />
-          <Route path="/quiz" element={<Quiz/>} />
+          <Route path="/quiz" element={<QuizPage/>} />
           <Route path="/notepad" element={<Notepad/>} />
           <Route path="/roadmap/frontend" element={<FrontendRoadmap/>} />
           <Route path="/roadmap/backend" element={<BackendDeveloperRoadmap/>} />

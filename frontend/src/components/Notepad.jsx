@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/notes'; // Change this to your actual API base URL
+const API_URL = 'http://localhost:5000/api/notes'; // Your API base URL
 
 export default function Notepad() {
   const [notes, setNotes] = useState('');
@@ -9,50 +9,95 @@ export default function Notepad() {
   const [currentNoteId, setCurrentNoteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [darkMode, setDarkMode] = useState(false);
+  
+  // Get user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?._id;
 
-  useEffect(() => {
-    fetchNotes();
-  }, []);
+ 
 
   const fetchNotes = async () => {
-    try {
-      const res = await axios.get(API_URL);
-      setSavedNotes(res.data);
-    } catch (err) {
-      console.error('Failed to fetch notes:', err);
+  if (!userId) {
+    console.log("No userId found, cannot fetch notes");
+    return;
+  }
+  
+  console.log("Attempting to fetch notes for userId:", userId);
+  console.log("API URL being called:", `${API_URL}/${userId}`);
+  
+  try {
+    const res = await axios.get(`${API_URL}/${userId}`);
+    console.log("API response status:", res.status);
+    console.log("API response data:", res.data);
+    
+    if (Array.isArray(res.data) && res.data.length === 0) {
+      console.log("API returned an empty array, no notes found for this user.");
+    } else if (!Array.isArray(res.data)) {
+      console.log("Warning: API did not return an array as expected:", typeof res.data);
     }
-  };
-
-  const handleSave = async () => {
-    if (notes.trim() === '') return;
-
-    try {
-      if (currentNoteId !== null) {
-        // Update existing note
-        await axios.put(`${API_URL}/${currentNoteId}`, {
-          content: notes,
-          lastModified: new Date()
-        });
-      } else {
-        // Create new note
-        await axios.post(API_URL, {
-          content: notes,
-          created: new Date(),
-          lastModified: new Date()
-        });
-      }
-      fetchNotes();
-      setNotes('');
-      setCurrentNoteId(null);
-    } catch (err) {
-      console.error('Error saving note:', err);
+    
+    localStorage.setItem('notes', JSON.stringify(res.data));
+    setSavedNotes(res.data);
+  } catch (err) {
+    console.error('Failed to fetch notes:', err);
+    console.error('Error details:', err.response?.data || err.message);
+    console.error('Request that failed:', err.config);
+    
+    // If API fails, try to get notes from localStorage
+    const localNotes = localStorage.getItem('notes');
+    if (localNotes) {
+      setSavedNotes(JSON.parse(localNotes));
     }
-  };
+  }
+};
+useEffect(() => {
+  fetchNotes();
+}, []);
 
+const handleSave = async () => {
+  if (notes.trim() === '' || !userId) return;
+  
+  try {
+    let savedNote;
+    
+    if (currentNoteId !== null) {
+      // Update existing note
+      const response = await axios.put(`${API_URL}/${currentNoteId}`, {
+        content: notes,
+        lastModified: new Date()
+      });
+      savedNote = response.data;
+    } else {
+      // Create new note
+      const response = await axios.post(API_URL, {
+        content: notes,
+        user_id: userId
+      });
+      savedNote = response.data;
+    }
+    
+    // Clear the form
+    setNotes('');
+    setCurrentNoteId(null);
+    
+    // Fetch fresh notes from the server
+    await fetchNotes();
+    
+  } catch (err) {
+    console.error('Error saving note:', err.response?.data || err.message);
+  }
+};
+  
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_URL}/${id}`);
-      fetchNotes();
+      
+      // Also remove from local state and storage
+      const filteredNotes = savedNotes.filter(note => note._id !== id);
+      
+      localStorage.setItem('notes', JSON.stringify(filteredNotes));
+      setSavedNotes(filteredNotes);
+      
       if (currentNoteId === id) {
         setNotes('');
         setCurrentNoteId(null);
@@ -63,7 +108,7 @@ export default function Notepad() {
   };
 
   const handleEdit = (id) => {
-    const noteToEdit = savedNotes.find(note => note.id === id);
+    const noteToEdit = savedNotes.find(note => note._id === id);
     if (noteToEdit) {
       setNotes(noteToEdit.content);
       setCurrentNoteId(id);
@@ -77,8 +122,11 @@ export default function Notepad() {
 
   const formatDate = (date) => new Date(date).toLocaleString();
 
+  // const filteredNotes = savedNotes.filter(note => 
+  //   note.content.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
   const filteredNotes = savedNotes.filter(note => 
-    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+    note && note.content ? note.content.toLowerCase().includes(searchTerm.toLowerCase()) : false
   );
 
   const getTitle = (content) => {
@@ -86,7 +134,7 @@ export default function Notepad() {
     return firstLine ? firstLine : 'Untitled Note';
   };
 
-  // Theme preference from localStorage (optional)
+  // Theme preference from localStorage
   useEffect(() => {
     const storedTheme = localStorage.getItem('notepad-theme');
     if (storedTheme === 'dark') {
@@ -97,6 +145,7 @@ export default function Notepad() {
   useEffect(() => {
     localStorage.setItem('notepad-theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
+
   return (
     <div className={`flex flex-col h-screen pt-21 max-h-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-800'} transition-colors duration-200`}>
       {/* Notepad Header */}
@@ -180,9 +229,9 @@ export default function Notepad() {
             ) : (
               filteredNotes.map(note => (
                 <div 
-                  key={note.id} 
+                  key={note._id} 
                   className={`${darkMode ? 'bg-gray-700 hover:bg-gray-600 border-gray-600' : 'bg-white hover:bg-gray-50 border-gray-200'} p-3 mb-2 rounded-lg border cursor-pointer group transition-colors`}
-                  onClick={() => handleEdit(note.id)}
+                  onClick={() => handleEdit(note._id)}
                 >
                   <h4 className="font-medium mb-1 line-clamp-1">
                     {getTitle(note.content)}
@@ -191,12 +240,12 @@ export default function Notepad() {
                     {note.content.split('\n').slice(1).join(' ').substring(0, 100)}
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span>{formatDate(note.lastModified)}</span>
+                    <span>{formatDate(note.lastModified || note.created)}</span>
                     <div className={`${darkMode ? 'opacity-60 hover:opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(note.id);
+                          handleDelete(note._id);
                         }}
                         className={`ml-2 ${darkMode ? 'text-red-400 hover:text-red-300' : 'text-red-500 hover:text-red-700'}`}
                       >

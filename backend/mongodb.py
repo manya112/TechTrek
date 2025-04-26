@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from bson import ObjectId
-import datetime
+from datetime import datetime
 
 # MongoDB connection
 MONGO_URI = "mongodb+srv://vandana1024k:Vandana_2_4_1_0@dontknow.8whozi3.mongodb.net/"
@@ -43,11 +43,27 @@ def find_user_by_email(email):
 
 # === NOTE FUNCTIONS ===
 
-def get_all_notes():
-    print("Fetching all notes...")
+# def get_all_notes():
+#     print("Fetching all notes...")
+#     notes = []
+#     try:
+#         for note in notes_collection.find():
+#             notes.append({
+#                 "id": str(note["_id"]),
+#                 "content": note["content"],
+#                 "created": note.get("created"),
+#                 "lastModified": note.get("lastModified")
+#             })
+#         print("✅ Notes fetched")
+#     except Exception as e:
+#         print(f"❌ Error fetching notes: {e}")
+#     return notes
+def get_all_notes(user_id):
+    print(f"Fetching notes for user: {user_id}")
     notes = []
     try:
-        for note in notes_collection.find():
+        # Don't convert user_id to ObjectId since it's stored as a string
+        for note in notes_collection.find({"user_id": user_id}):
             notes.append({
                 "id": str(note["_id"]),
                 "content": note["content"],
@@ -59,20 +75,47 @@ def get_all_notes():
         print(f"❌ Error fetching notes: {e}")
     return notes
 
-def create_note(content):
-    print("Creating a new note...")
-    try:
-        note = {
-            "content": content,
-            "created": datetime.datetime.utcnow(),
-            "lastModified": datetime.datetime.utcnow()
-        }
-        result = notes_collection.insert_one(note)
-        print(f"✅ Note created with _id: {result.inserted_id}")
-        return str(result.inserted_id)
-    except Exception as e:
-        print(f"❌ Error creating note: {e}")
-        return None
+
+# def create_note(content):
+#     print("Creating a new note...")
+#     try:
+#         note = {
+#             "content": content,
+#             "created": datetime.datetime.utcnow(),
+#             "lastModified": datetime.datetime.utcnow()
+#         }
+#         result = notes_collection.insert_one(note)
+#         print(f"✅ Note created with _id: {result.inserted_id}")
+#         return str(result.inserted_id)
+#     except Exception as e:
+#         print(f"❌ Error creating note: {e}")
+#         return None
+# def create_note(content, user_id):
+#     print("Creating a new note...")
+#     try:
+#         note = {
+#             "content": content,
+#             "user_id": ObjectId(user_id),
+#             "created": datetime.datetime.utcnow(),
+#             "lastModified": datetime.datetime.utcnow()
+#         }
+#         result = notes_collection.insert_one(note)
+#         print(f"✅ Note created with _id: {result.inserted_id}")
+#         return str(result.inserted_id)
+#     except Exception as e:
+#         print(f"❌ Error creating note: {e}")
+#         return None
+def create_note(content, user_id):
+    note = {
+        "content": content,
+        "user_id": user_id,
+        "created": datetime.utcnow(),
+        "lastModified": datetime.utcnow()
+    }
+    result = notes_collection.insert_one(note)
+    return str(result.inserted_id)
+
+
 
 def update_note(note_id, content):
     print(f"Updating note with id: {note_id}")
@@ -95,15 +138,29 @@ def update_note(note_id, content):
         return False
 
 def delete_note(note_id):
-    print(f"Deleting note with id: {note_id}")
+    if not note_id:
+        print("❌ Error: note_id is required")
+        return False
+        
     try:
-        result = notes_collection.delete_one({"_id": ObjectId(note_id)})
+        # Validate note_id format
+        if not ObjectId.is_valid(note_id):
+            print(f"❌ Error: Invalid note_id format: {note_id}")
+            return False
+            
+        # Convert to ObjectId and attempt deletion
+        object_id = ObjectId(note_id)
+        print(f"🔄 Attempting to delete note with id: {note_id}")
+        
+        result = notes_collection.delete_one({"_id": object_id})
+        
         if result.deleted_count > 0:
-            print("✅ Note deleted")
+            print(f"✅ Note {note_id} successfully deleted")
             return True
         else:
-            print("❌ Note not found")
+            print(f"❌ Note with id {note_id} not found")
             return False
+            
     except Exception as e:
-        print(f"❌ Error deleting note: {e}")
-        return False
+        print(f"❌ Error deleting note {note_id}: {str(e)}")
+        raise Exception(f"Failed to delete note: {str(e)}")
