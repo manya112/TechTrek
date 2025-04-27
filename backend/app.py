@@ -4,6 +4,7 @@ from auth_routes import auth_bp
 from notes_routes import note_bp 
 from quiz_routes import quiz_bp 
 from user_routes import user_bp 
+from badge_routes import badge_bp 
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
@@ -25,6 +26,9 @@ app.register_blueprint(quiz_bp, url_prefix="/api/quiz")
 
 # ==== USER ROUTES ====
 app.register_blueprint(user_bp, url_prefix="/api/user")
+
+# ==== BADGE ROUTES ====
+app.register_blueprint(badge_bp, url_prefix="/api/badge")
 
 # ==== SERVER START ====
 if __name__ == '__main__':

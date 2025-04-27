@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/HomePage';
 import NotFound from './pages/NotFound';
 import HomePage2 from './pages/HomePage2';
-import Quiz from './pages/Quiz';
 import Notepad from './components/notepad';
 import Layout from './components/Layout';
 import Profile from './components/Profile';

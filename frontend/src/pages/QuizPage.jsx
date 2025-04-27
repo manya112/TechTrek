@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import {quizData} from '../constants.js'; // Import quiz data
 import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance'; // Import axios instance
 // Career path categories
 const categories = [
   { id: 'all', label: 'All Quizzes', color: 'from-blue-500 to-purple-600' },
@@ -130,9 +131,6 @@ export default function QuizPage() {
 
   const finishQuiz = async () => {
     // FIX 1: Properly calculate the final score
-    // The score state already contains all the correct answers from previous questions
-    // We need to check if the last answer is correct and include it in the final score
-    // No need to add it again if already counted in handleNextQuestion
     const finalScore = score;
     
     const passThreshold = currentQuiz.questions.length * 0.6; // 60% to pass
@@ -140,12 +138,31 @@ export default function QuizPage() {
     if (finalScore >= passThreshold) {
       // Award badge
       const earnedBadge = currentQuiz.badge;
-      if (!earnedBadges.some(badge => badge.id === earnedBadge.id)) {
-        setEarnedBadges([...earnedBadges, earnedBadge]);
+      
+      try {
+        console.log("Submitting earned badge:", earnedBadge);
+        
+        // Prepare badge data to send to the backend
+        const badgeData = {
+          badgeName: earnedBadge.name,
+          badgeIcon: earnedBadge.icon,
+          userId: userId, // Add userId to associate with the earned badge
+        };
+  
+        // Send request to backend to save the earned badge
+        const badgeResponse = await axiosInstance.post('/api/badge/', badgeData);
+        
+        if (badgeResponse.status === 201 || badgeResponse.status === 200) {
+          console.log('Badge awarded successfully:', badgeResponse.data);
+        } else {
+          console.error('Failed to award badge:', badgeResponse.statusText);
+        }
+      } catch (error) {
+        console.error('Error awarding badge:', error.message);
       }
     }
     
-    // Prepare data to send to the backend
+    // Prepare data to send to the backend for quiz result
     const quizResultData = {
       userId: userId,
       quizName: currentQuiz.title,
@@ -153,7 +170,6 @@ export default function QuizPage() {
       quizIcon: currentQuiz.icon,
       totalPoints: currentQuiz.questions.length,
       pointsObtained: finalScore,
-      timestamp: new Date().toISOString()
     };
     
     // Set submitting state to true (can be used to show a loading indicator)
@@ -162,14 +178,7 @@ export default function QuizPage() {
     try {
       console.log("Submitting quiz result:", quizResultData);
       
-      const token = localStorage.getItem('token'); // Get the token from localStorage
-      
-      const response = await axios.post('/api/quiz-results', quizResultData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` // Attach token to the header
-        }
-      });
+      const response = await axiosInstance.post('/api/quiz/', quizResultData);
       
       if (response.status === 201 || response.status === 200) {
         setSubmitStatus('success');
@@ -180,17 +189,14 @@ export default function QuizPage() {
       }
     } catch (error) {
       setSubmitStatus('error');
+      
       // FIX 3: Better error handling with more specific messages
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         console.error('Error submitting quiz results:', error.response.data);
         console.error('Status:', error.response.status);
       } else if (error.request) {
-        // The request was made but no response was received
         console.error('No response received from server:', error.request);
       } else {
-        // Something happened in setting up the request that triggered an Error
         console.error('Error setting up request:', error.message);
       }
     } finally {
@@ -198,6 +204,7 @@ export default function QuizPage() {
       setQuizCompleted(true);
     }
   };
+  
 
   const resetQuiz = () => {
     setCurrentQuestionIndex(0);
