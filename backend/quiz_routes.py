@@ -8,7 +8,6 @@ quiz_bp = Blueprint('quiz', __name__)
 #u just have to edit the logics, no route names,etc
 
 
-
 # Get all notes
 @quiz_bp.route('/', methods=['GET'])
 @token_required 
