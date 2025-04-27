@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/HomePage';
 import NotFound from './pages/NotFound';
-import HomePage2 from './pages/HomePage2';
-import Notepad from './components/notepad';
+import Notepad from './pages/Notepad';
 import Layout from './components/Layout';
 import Profile from './components/Profile';
 import FrontendRoadmap from './components/FrontendRoadmap';
@@ -20,7 +19,6 @@ const App = () => {
       <Routes>
         <Route element={<Layout />} >
           <Route path="/" element={<Home />} />
-          {/* <Route path="/home" element={<Home/>} /> */}
           <Route path="/signup" element={<Signup/>} />
           <Route path="/login" element={<Login2/>} />
           <Route path="/quiz" element={<QuizPage/>} />

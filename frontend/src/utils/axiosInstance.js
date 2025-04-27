@@ -5,9 +5,7 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Adding timeout and withCredentials for better debugging
-  timeout: 10000,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 // Add a request interceptor to include JWT token in each request
