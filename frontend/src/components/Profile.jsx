@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
 
 export default function Profile() {
   const [showModal, setShowModal] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [userQuizzes, setUserQuizzes] = useState([]);
+  const [quizLoading, setQuizLoading] = useState(true);
 
   const [profileData, setProfileData] = useState({
     name: "Alex Johnson",
@@ -33,7 +36,80 @@ export default function Profile() {
     toggleModal();
   };
 
+  // Basic GET request
+  const fetchProfileData = async () => {
+    try {
+      const response = await axiosInstance.get('/api/user/profile');
+      console.log('Profile data:', response.data);
+      
+      // Update profile data state
+      setProfileData({
+        name: response.data.name || "Alex Johnson",
+        title: response.data.title || "Frontend Developer | React Specialist",
+        courses: response.data.courses || 42,
+        quizzes: response.data.quizzes || 15,
+        badges: response.data.badges || 8,
+        progress: response.data.progress || 78
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+ // Fetch user's attempted quizzes
+const fetchUserQuizzes = async () => {
+  try {
+    setQuizLoading(true);
+    // Get user ID from localStorage if available
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = userData._id;
+    
+    if (!userId) {
+      console.log('No user ID found, showing empty quiz data');
+      setUserQuizzes([]);
+      setProfileData(prev => ({
+        ...prev,
+        quizzes: 0
+      }));
+      return;
+    }
+    
+    // Updated endpoint path to match your API structure
+    const response = await axiosInstance.get('/api/quiz/');
+    console.log('User quizzes:', response.data);
+    
+    // If data exists and has length, set it
+    if (response.data && Array.isArray(response.data)) {
+      setUserQuizzes(response.data);
+      // Update the quiz count in profile data
+      setProfileData(prev => ({
+        ...prev,
+        quizzes: response.data.length
+      }));
+    } else {
+      // If no quizzes or invalid data, set empty array and 0 count
+      setUserQuizzes([]);
+      setProfileData(prev => ({
+        ...prev,
+        quizzes: 0
+      }));
+    }
+  } catch (error) {
+    console.error('Error fetching quiz data:', error);
+    setUserQuizzes([]);
+    setProfileData(prev => ({
+      ...prev,
+      quizzes: 0
+    }));
+  } finally {
+    setQuizLoading(false);
+  }
+};
   useEffect(() => {
+    // Fetch profile data when component mounts
+    fetchProfileData();
+    fetchUserQuizzes();
+    
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
@@ -83,7 +159,7 @@ export default function Profile() {
       <div className="fixed inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80 z-0"></div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 mt-9">
         {/* Profile Card */}
         <div className="bg-white/5 backdrop-blur-lg border border-white/10 p-10 rounded-2xl shadow-xl relative mb-12 transition-all duration-300 hover:shadow-purple-500/30">
           <button 
@@ -150,6 +226,7 @@ export default function Profile() {
           </div>
         </div>
 
+
         {/* Edit Profile Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
@@ -200,5 +277,6 @@ export default function Profile() {
         }
       `}</style>
     </div>
+    
   );
 }

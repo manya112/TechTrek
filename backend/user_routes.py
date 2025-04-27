@@ -21,3 +21,25 @@ def get_user():
         print(f"Error fetching notes: {e}")
         return jsonify({"error": str(e)}), 500
 
+# Get user profile information
+@user_bp.route('/profile', methods=['GET'])
+@token_required
+def get_profile():
+    try:
+        user_id = request.user_id
+        # In a real application, you would fetch user data from database here
+        # For now, returning dummy data
+        user_data = {
+            "name": "Alex Johnson",
+            "email": "alex@example.com",
+            "title": "Frontend Developer | React Specialist",
+            "courses": 42,
+            "quizzes": 15,
+            "badges": 8,
+            "progress": 78
+        }
+        return jsonify(user_data), 200
+    except Exception as e:
+        print(f"Error fetching profile: {e}")
+        return jsonify({"error": str(e)}), 500
+
