@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 # from mongodb import get_user  # Import relevant functions
 from auth import token_required
+from mongodb import get_profile_by_id
 
 user_bp = Blueprint('user', __name__)
 
@@ -26,20 +27,42 @@ def get_user():
 @token_required
 def get_profile():
     try:
-        user_id = request.user_id
-        # In a real application, you would fetch user data from database here
-        # For now, returning dummy data
-        user_data = {
-            "name": "Alex Johnson",
-            "email": "alex@example.com",
-            "title": "Frontend Developer | React Specialist",
-            "courses": 42,
-            "quizzes": 15,
-            "badges": 8,
-            "progress": 78
-        }
-        return jsonify(user_data), 200
+        user_id= get_profile_by_id(request.user_id)
+        if not user_id:
+                return jsonify({"error": "User not found"}), 404
+        return jsonify(user_id), 200
     except Exception as e:
-        print(f"Error fetching profile: {e}")
+        print(f"Error fetching user profile: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@user_bp.route('/profile', methods=['PUT'])
+@token_required
+def update_profile():
+    try:
+        # Get the request data
+        data = request.get_json()
+        user_id = request.user_id  # Get the user ID from the token
 
+        # Allow partial updates - only require name
+        if 'name' not in data:
+            return jsonify({"error": "Name field is required"}), 400
+
+        # Import here to avoid circular imports
+        from mongodb import update_user_profile
+            
+        # Create update data dict - include title if provided
+        update_data = {"name": data["name"]}
+        if "title" in data:
+            update_data["title"] = data["title"]
+        
+        # Update user profile
+        result = update_user_profile(user_id, update_data)
+        
+        if result:
+            return jsonify({"message": "Profile updated successfully"}), 200
+        else:
+            return jsonify({"error": "Failed to update profile"}), 500
+            
+    except Exception as e:
+        print(f"Error processing profile update: {e}")
+        return jsonify({"error": str(e)}), 500
