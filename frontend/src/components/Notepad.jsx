@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/notes'; // Your API base URL
-
+import axiosInstance from '../utils/axiosInstance';
+const API_URL = 'http://localhost:5000/api/notes/'; // Your API base URL
+// make sure route ends with /
 export default function Notepad() {
   const [notes, setNotes] = useState('');
   const [savedNotes, setSavedNotes] = useState([]);
@@ -11,23 +11,16 @@ export default function Notepad() {
   const [darkMode, setDarkMode] = useState(false);
   
   // Get user from localStorage
-  const user = JSON.parse(localStorage.getItem("user"));
-  const userId = user?._id;
+  
 
  
 
   const fetchNotes = async () => {
-  if (!userId) {
-    console.log("No userId found, cannot fetch notes");
-    return;
-  }
   
-  console.log("Attempting to fetch notes for userId:", userId);
-  console.log("API URL being called:", `${API_URL}/${userId}`);
+  console.log("API URL being called:", `${API_URL}`);
   
   try {
-    const res = await axios.get(`${API_URL}/${userId}`);
-    console.log("API response status:", res.status);
+    const res = await axiosInstance.get(`${API_URL}`);
     console.log("API response data:", res.data);
     
     if (Array.isArray(res.data) && res.data.length === 0) {
@@ -36,7 +29,7 @@ export default function Notepad() {
       console.log("Warning: API did not return an array as expected:", typeof res.data);
     }
     
-    localStorage.setItem('notes', JSON.stringify(res.data));
+    // localStorage.setItem('notes', JSON.stringify(res.data));
     setSavedNotes(res.data);
   } catch (err) {
     console.error('Failed to fetch notes:', err);
@@ -44,10 +37,10 @@ export default function Notepad() {
     console.error('Request that failed:', err.config);
     
     // If API fails, try to get notes from localStorage
-    const localNotes = localStorage.getItem('notes');
-    if (localNotes) {
-      setSavedNotes(JSON.parse(localNotes));
-    }
+    // const localNotes = localStorage.getItem('notes');
+    // if (localNotes) {
+    //   setSavedNotes(JSON.parse(localNotes));
+    // }
   }
 };
 useEffect(() => {
@@ -55,7 +48,7 @@ useEffect(() => {
 }, []);
 
 const handleSave = async () => {
-  if (notes.trim() === '' || !userId) return;
+  if (notes.trim() === '') return;
   
   try {
     let savedNote;
@@ -69,9 +62,8 @@ const handleSave = async () => {
       savedNote = response.data;
     } else {
       // Create new note
-      const response = await axios.post(API_URL, {
-        content: notes,
-        user_id: userId
+      const response = await axiosInstance.post(API_URL, {
+        content: notes
       });
       savedNote = response.data;
     }
@@ -227,9 +219,9 @@ const handleSave = async () => {
                 {searchTerm ? 'No matching notes found' : 'No saved notes yet'}
               </div>
             ) : (
-              filteredNotes.map(note => (
+              filteredNotes.map((note,index) => (
                 <div 
-                  key={note._id} 
+                  key={index} 
                   className={`${darkMode ? 'bg-gray-700 hover:bg-gray-600 border-gray-600' : 'bg-white hover:bg-gray-50 border-gray-200'} p-3 mb-2 rounded-lg border cursor-pointer group transition-colors`}
                   onClick={() => handleEdit(note._id)}
                 >

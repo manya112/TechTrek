@@ -10,15 +10,9 @@ import FrontendRoadmap from './components/FrontendRoadmap';
 import BackendDeveloperRoadmap from './components/BackendDeveloperRoadmap';
 import AIEngineer from './components/AIEngineer';
 import AIDataScientist from './components/AIDataScientist';
-import VibrantLoginPage from './pages/Login';
-import VibrantSignupPage from './pages/Signup';
 import Login2 from './pages/Login2';
 import Signup from './pages/Signup2';
 import QuizPage from './pages/QuizPage';
-
-
-
-
 
 
 const App = () => {

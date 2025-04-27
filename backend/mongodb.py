@@ -41,24 +41,7 @@ def find_user_by_email(email):
         print(f"❌ Error finding user: {e}")
         return None
 
-# === NOTE FUNCTIONS ===
-
-# def get_all_notes():
-#     print("Fetching all notes...")
-#     notes = []
-#     try:
-#         for note in notes_collection.find():
-#             notes.append({
-#                 "id": str(note["_id"]),
-#                 "content": note["content"],
-#                 "created": note.get("created"),
-#                 "lastModified": note.get("lastModified")
-#             })
-#         print("✅ Notes fetched")
-#     except Exception as e:
-#         print(f"❌ Error fetching notes: {e}")
-#     return notes
-def get_all_notes(user_id):
+def get_user_notes(user_id):
     print(f"Fetching notes for user: {user_id}")
     notes = []
     try:
@@ -75,36 +58,6 @@ def get_all_notes(user_id):
         print(f"❌ Error fetching notes: {e}")
     return notes
 
-
-# def create_note(content):
-#     print("Creating a new note...")
-#     try:
-#         note = {
-#             "content": content,
-#             "created": datetime.datetime.utcnow(),
-#             "lastModified": datetime.datetime.utcnow()
-#         }
-#         result = notes_collection.insert_one(note)
-#         print(f"✅ Note created with _id: {result.inserted_id}")
-#         return str(result.inserted_id)
-#     except Exception as e:
-#         print(f"❌ Error creating note: {e}")
-#         return None
-# def create_note(content, user_id):
-#     print("Creating a new note...")
-#     try:
-#         note = {
-#             "content": content,
-#             "user_id": ObjectId(user_id),
-#             "created": datetime.datetime.utcnow(),
-#             "lastModified": datetime.datetime.utcnow()
-#         }
-#         result = notes_collection.insert_one(note)
-#         print(f"✅ Note created with _id: {result.inserted_id}")
-#         return str(result.inserted_id)
-#     except Exception as e:
-#         print(f"❌ Error creating note: {e}")
-#         return None
 def create_note(content, user_id):
     note = {
         "content": content,
@@ -114,8 +67,6 @@ def create_note(content, user_id):
     }
     result = notes_collection.insert_one(note)
     return str(result.inserted_id)
-
-
 
 def update_note(note_id, content):
     print(f"Updating note with id: {note_id}")
