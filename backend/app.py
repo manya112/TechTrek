@@ -7,7 +7,11 @@ from user_routes import user_bp
 from badge_routes import badge_bp 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(
+    app,
+    resources={r"/*": {"origins": "http://localhost:5173"}},
+    supports_credentials=True,
+)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  # Use environment variable in production
 
 @app.route('/')

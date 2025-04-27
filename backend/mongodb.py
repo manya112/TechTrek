@@ -70,15 +70,18 @@ def create_note(content, user_id):
     result = notes_collection.insert_one(note)
     return str(result.inserted_id)
 
+
 def update_note(note_id, content):
     print(f"Updating note with id: {note_id}")
     try:
         result = notes_collection.update_one(
             {"_id": ObjectId(note_id)},
-            {"$set": {
-                "content": content,
-                "lastModified": datetime.datetime.utcnow()
-            }}
+            {
+                "$set": {
+                    "content": content,
+                    "lastModified": datetime.utcnow(),  # Directly using datetime
+                }
+            },
         )
         if result.matched_count > 0:
             print("✅ Note updated")
@@ -89,6 +92,7 @@ def update_note(note_id, content):
     except Exception as e:
         print(f"❌ Error updating note: {e}")
         return False
+
 
 def delete_note(note_id):
     if not note_id:

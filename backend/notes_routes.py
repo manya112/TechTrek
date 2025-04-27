@@ -2,27 +2,32 @@
 from flask import Blueprint, request, jsonify
 from mongodb import get_user_notes, create_note, update_note, delete_note  # Import relevant functions
 from auth import token_required
+from utils import mongo_to_json
 
 note_bp = Blueprint('notes', __name__)
 
-#whoever doing this, remember user_id can be accessed as  (request.user_id) in any of these routes
-#u just have to edit the logics, no route names,etc
+# whoever doing this, remember user_id can be accessed as  (request.user_id) in any of these routes
+# u just have to edit the logics, no route names,etc
 
 
 # Get all notes, almost works,check if any changes needed.
-@note_bp.route('/', methods=['GET'])
-@token_required 
+@note_bp.route("/", methods=["GET"])
+@token_required
 def get_notes():
-
     user_id = request.user_id
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
     try:
         notes = get_user_notes(user_id)
-        return jsonify(notes), 200
+
+        # 🔥 Clean notes before sending
+        cleaned_notes = mongo_to_json(notes)
+
+        return jsonify(cleaned_notes), 200
     except Exception as e:
         print(f"Error fetching notes: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 # Create a new note, dont touch, it works.
 @note_bp.route('/', methods=['POST'])
@@ -46,11 +51,12 @@ def post_note():
 
 # Edit an existing note
 @note_bp.route('/<note_id>', methods=['PUT'])
-@token_required 
 def edit_note(note_id):
     data = request.get_json()
     content = data.get("content")
-
+    print(content, "content")
+    print(note_id, "note_id")
+    print(data, "data")
     if not content:
         return jsonify({"error": "Content is required"}), 400
 
@@ -66,7 +72,6 @@ def edit_note(note_id):
 
 # Delete a note
 @note_bp.route('/<note_id>', methods=['DELETE'])
-@token_required 
 def remove_note(note_id):
     try:
         deleted = delete_note(note_id)
