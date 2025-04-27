@@ -445,11 +445,11 @@ const AIDataScientist = () => {
 
       <footer className="bg-gray-800 text-white py-10 text-center mt-10">
         <div className="max-w-3xl mx-auto px-4">
-          <h3 className="text-xl font-semibold mb-4">AI Engineer Developer Roadmap</h3>
+          <h3 className="text-xl font-semibold mb-4">AI& Data Scientist Developer Roadmap</h3>
           <p className="text-gray-400 mb-5">
             This roadmap aims to provide a comprehensive understanding of the
-            AI Engineer development landscape and guide you through the skills and
-            technologies needed to become a modern AI Engineer developer.
+            AI& Data Scientist development landscape and guide you through the skills and
+            technologies needed to become a modern AI& Data Scientist developer.
           </p>
           <div className="flex justify-center gap-8 mt-5">
             <a href="#" className="text-blue-400 hover:underline">Resources</a>

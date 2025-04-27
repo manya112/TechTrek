@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const AIEngineer = () => {
+const Blockchain = () => {
   const paperRef = useRef(null);
   const [progress, setProgress] = useState(0);
 
@@ -102,7 +102,7 @@ const AIEngineer = () => {
       }
 
       // Main Nodes
-      const AIEngineer = createBox("AI Engineer Development", 500, 70, true);
+      const Blockchain = createBox("AI Engineer Development", 500, 70, true);
       const foundations = createBox("Programming Foundations", 500, 160, true);
       const languages = createBox("Programming Languages", 400, 320, true);
       const serverSide = createBox("Server-Side Frameworks", 500, 270, true);
@@ -193,7 +193,7 @@ const AIEngineer = () => {
       // Add all elements to the graph
       graph.addCells([
         // Main Nodes
-        AIEngineer,
+        Blockchain,
         foundations,
         languages,
         serverSide,
@@ -463,4 +463,4 @@ const AIEngineer = () => {
   );
 };
 
-export default AIEngineer;
+export default Blockchain;

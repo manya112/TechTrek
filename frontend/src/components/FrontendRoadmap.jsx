@@ -38,6 +38,7 @@ const FrontendRoadmap = () => {
         padding: 50,
         minWidth: 800,
         minHeight: 1000,
+        
       },
     });
 
