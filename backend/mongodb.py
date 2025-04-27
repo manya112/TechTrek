@@ -200,8 +200,17 @@ def get_quizzes_by_user(user_id):
         print(f"❌ Error inserting or updating quiz: {e}")
         return None
 
-# === BADGE FUNCTIONS ===
-
+# === BADGE FUNCTIONS ===        
+        # Save the badge
+        result = save_badge(badge_data)
+        print(f"✅ First badge '{badge_name}' awarded to user!")
+        
+        return badge_data
+        
+    except Exception as e:
+        print(f"❌ Error awarding badge: {e}")
+        return None
+    
 def save_badge(badge_data):
     try:
         result = badges_collection.insert_one(badge_data)
@@ -224,3 +233,21 @@ def get_badges_by_user(user_id):
     except Exception as e:
         print(f"❌ Error fetching badges: {e}")
         return []
+    
+def get_profile_by_id(user_id):
+    try:
+        user = users.find_one({"_id": ObjectId(user_id)})
+        if user:
+            return {
+                "id": str(user["_id"]),
+                "name": user["name"],
+                "email": user["email"],
+                # Add other fields as needed
+            }
+        else:
+            print("❌ User not found")
+            return None
+    except Exception as e:
+        print(f"❌ Error fetching profile: {e}")
+        return None
+        
