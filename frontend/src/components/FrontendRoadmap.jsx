@@ -272,27 +272,30 @@ const FrontendRoadmap = () => {
 
   return (
     <>
-      <div className="header">
-        <h1 className="title">Frontend Developer Roadmap 2025</h1>
-        <p className="subtitle">
-          A comprehensive step-by-step guide to becoming a modern frontend
-          developer with the latest technologies and best practices
-        </p>
+      <div className="header pt-[10rem] bg-zinc-800 text-white text-center py-16">
+  <h1 className="title text-4xl font-extrabold">
+    Frontend Developer Roadmap 2025
+  </h1>
+  <p className="subtitle mt-4 text-lg font-light max-w-3xl mx-auto">
+    A comprehensive step-by-step guide to becoming a modern frontend
+    developer with the latest technologies and best practices.
+  </p>
 
-        <div className="button-container">
-          <a href="./frontend.html" className="button">
-            <i className="fa fa-map-marker"></i>
-            Interactive Roadmap
-          </a>
-        
-          <a href="./project1.html" className="button">
-            <i className="fa fa-wrench"></i>
-            Project Ideas
-          </a>
-        </div>
-      </div>
+  <div className="button-container mt-8 flex justify-center gap-6">
+    <a href="./frontend.html" className="button flex items-center px-8 py-3 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-all">
+      <i className="fa fa-map-marker mr-2"></i>
+      Interactive Roadmap
+    </a>
+    
+    <a href="./project1.html" className="button flex items-center px-8 py-3 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all">
+      <i className="fa fa-wrench mr-2"></i>
+      Project Ideas
+    </a>
+  </div>
+</div>
 
-      <div className="progress-container">
+
+      {/* <div className="progress-container">
         <div className="progress-header">
           <span className="progress-text">Your Progress</span>
           <span className="progress-count">0/100 Completed</span>
@@ -303,11 +306,10 @@ const FrontendRoadmap = () => {
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-      </div>
+      </div> */}
 
       <div className="h-[700vh] w-full">
-        {/* <div id="paper" ref={paperRef}></div> */}
-        {/* <div className="w-full h-[500vh] bg-white"> */}
+        
       <iframe
         className="w-full h-full bg-white"
         src="/frontend.pdf#toolbar=0"

@@ -1,27 +1,38 @@
-from functools import wraps
-from flask import request, jsonify, current_app
 import jwt
+from flask import request
+from functools import wraps
 
+SECRET_KEY = 'your_secret_key_here'  # Use your actual secret key here
+
+# Function to verify the JWT token
+def verify_token():
+    token = None
+    # Check if the token is passed in the Authorization header
+    if 'Authorization' in request.headers:
+        token = request.headers['Authorization'].split(" ")[1]
+        print("Token found in headers:", token)
+
+    if not token:
+        return None
+
+    try:
+        # Decode the token
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        print("Decoded token:", decoded)    
+        return decoded  # Returns the decoded token data (including user_id)
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+# Decorator to require token for accessing routes
 def token_required(f):
     @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-
-        # Check for token in headers
-        if 'Authorization' in request.headers:
-            bearer = request.headers['Authorization']
-            token = bearer.split(" ")[1] if bearer.startswith("Bearer ") else bearer
-
-        if not token:
-            return jsonify({"error": "Token is missing!"}), 401
-
-        try:
-            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
-            request.user = data  # Optional: attach decoded user info to request
-        except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token has expired!"}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid token!"}), 401
-
+    def decorated_function(*args, **kwargs):
+        decoded_token = verify_token()
+        if decoded_token is None:
+            return {"error": "Token is missing or invalid"}, 401
+        request.user_id = decoded_token.get('_id')  # Attach _id to the request context
         return f(*args, **kwargs)
-    return decorated
+    return decorated_function
+

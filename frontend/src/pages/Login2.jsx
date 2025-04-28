@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance  from '../utils/axiosInstance';
 
 const Login = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -77,7 +77,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/login', formData);
+      const response = await axiosInstance.post('http://localhost:5000/api/auth/login', formData);
       const { token, user } = response.data;
 
       // Store in localStorage

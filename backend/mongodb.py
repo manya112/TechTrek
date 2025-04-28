@@ -12,6 +12,8 @@ print("Connected to MongoDB!")
 db = client["path2it"]
 users = db["user"]
 notes_collection = db["notes"]
+quizzes_collection = db["quizzes"]
+badges_collection = db["badges"]
 
 # === USER FUNCTIONS ===
 
@@ -41,24 +43,7 @@ def find_user_by_email(email):
         print(f"❌ Error finding user: {e}")
         return None
 
-# === NOTE FUNCTIONS ===
-
-# def get_all_notes():
-#     print("Fetching all notes...")
-#     notes = []
-#     try:
-#         for note in notes_collection.find():
-#             notes.append({
-#                 "id": str(note["_id"]),
-#                 "content": note["content"],
-#                 "created": note.get("created"),
-#                 "lastModified": note.get("lastModified")
-#             })
-#         print("✅ Notes fetched")
-#     except Exception as e:
-#         print(f"❌ Error fetching notes: {e}")
-#     return notes
-def get_all_notes(user_id):
+def get_user_notes(user_id):
     print(f"Fetching notes for user: {user_id}")
     notes = []
     try:
@@ -75,36 +60,6 @@ def get_all_notes(user_id):
         print(f"❌ Error fetching notes: {e}")
     return notes
 
-
-# def create_note(content):
-#     print("Creating a new note...")
-#     try:
-#         note = {
-#             "content": content,
-#             "created": datetime.datetime.utcnow(),
-#             "lastModified": datetime.datetime.utcnow()
-#         }
-#         result = notes_collection.insert_one(note)
-#         print(f"✅ Note created with _id: {result.inserted_id}")
-#         return str(result.inserted_id)
-#     except Exception as e:
-#         print(f"❌ Error creating note: {e}")
-#         return None
-# def create_note(content, user_id):
-#     print("Creating a new note...")
-#     try:
-#         note = {
-#             "content": content,
-#             "user_id": ObjectId(user_id),
-#             "created": datetime.datetime.utcnow(),
-#             "lastModified": datetime.datetime.utcnow()
-#         }
-#         result = notes_collection.insert_one(note)
-#         print(f"✅ Note created with _id: {result.inserted_id}")
-#         return str(result.inserted_id)
-#     except Exception as e:
-#         print(f"❌ Error creating note: {e}")
-#         return None
 def create_note(content, user_id):
     note = {
         "content": content,
@@ -116,16 +71,17 @@ def create_note(content, user_id):
     return str(result.inserted_id)
 
 
-
 def update_note(note_id, content):
     print(f"Updating note with id: {note_id}")
     try:
         result = notes_collection.update_one(
             {"_id": ObjectId(note_id)},
-            {"$set": {
-                "content": content,
-                "lastModified": datetime.datetime.utcnow()
-            }}
+            {
+                "$set": {
+                    "content": content,
+                    "lastModified": datetime.utcnow(),  # Directly using datetime
+                }
+            },
         )
         if result.matched_count > 0:
             print("✅ Note updated")
@@ -136,6 +92,7 @@ def update_note(note_id, content):
     except Exception as e:
         print(f"❌ Error updating note: {e}")
         return False
+
 
 def delete_note(note_id):
     if not note_id:
@@ -164,3 +121,133 @@ def delete_note(note_id):
     except Exception as e:
         print(f"❌ Error deleting note {note_id}: {str(e)}")
         raise Exception(f"Failed to delete note: {str(e)}")
+
+# === QUIZ FUNCTIONS ===
+
+def get_quiz_by_name_and_user(quiz_name, user_id):
+    """ Get a quiz by quizName and userId """
+    try:
+        quiz = quizzes_collection.find_one({"quizName": quiz_name, "userId": user_id})
+        return quiz
+    except Exception as e:
+        print(f"❌ Error fetching quiz: {e}")
+        return None
+
+def save_quiz(quiz_data):
+    """ Insert a new quiz """
+    try:
+        result = quizzes_collection.insert_one(quiz_data)
+        print(f"✅ Quiz inserted with _id: {result.inserted_id}")
+        return result
+    except Exception as e:
+        print(f"❌ Error saving quiz: {e}")
+        return None
+
+def update_quiz(quiz_id, quiz_data):
+    """ Update an existing quiz """
+    try:
+        result = quizzes_collection.update_one(
+            {"_id": ObjectId(quiz_id)},
+            {"$set": quiz_data}
+        )
+        if result.matched_count > 0:
+            print(f"✅ Quiz updated with _id: {quiz_id}")
+            return True
+        else:
+            print(f"❌ Quiz not found with _id: {quiz_id}")
+            return False
+    except Exception as e:
+        print(f"❌ Error updating quiz: {e}")
+        return False
+
+def get_quizzes_by_user(user_id):
+    """ Get all quizzes attempted by a user """
+    try:
+        quizzes = []
+        for quiz in quizzes_collection.find({"userId": user_id}):
+            quizzes.append({
+                "id": str(quiz["_id"]),
+                "quizName": quiz["quizName"],
+                "quizDescription": quiz["quizDescription"],
+                "quizIcon": quiz["quizIcon"],
+                "pointsObtained": quiz["pointsObtained"],
+                "totalPoints": quiz["totalPoints"]
+            })
+        print("✅ Quizzes fetched for user")
+        return quizzes
+    except Exception as e:
+        print(f"❌ Error fetching quizzes for user: {e}")
+        return []
+    """ Insert a new quiz or update if it exists """
+    try:
+        existing_quiz = get_quiz_by_name_and_user(quiz_data["quizName"], user_id)
+        
+        if existing_quiz:
+            # Update the existing quiz
+            result = quizzes_collection.update_one(
+                {"_id": existing_quiz["_id"]},
+                {"$set": quiz_data}
+            )
+            print(f"✅ Quiz updated with _id: {existing_quiz['_id']}")
+        else:
+            # Insert a new quiz
+            quiz_data["userId"] = user_id
+            result = quizzes_collection.insert_one(quiz_data)
+            print(f"✅ Quiz inserted with _id: {result.inserted_id}")
+        
+        return result
+    except Exception as e:
+        print(f"❌ Error inserting or updating quiz: {e}")
+        return None
+
+# === BADGE FUNCTIONS ===        
+        # Save the badge
+        result = save_badge(badge_data)
+        print(f"✅ First badge '{badge_name}' awarded to user!")
+        
+        return badge_data
+        
+    except Exception as e:
+        print(f"❌ Error awarding badge: {e}")
+        return None
+    
+def save_badge(badge_data):
+    try:
+        result = badges_collection.insert_one(badge_data)
+        print(f"✅ Badge inserted with _id: {result.inserted_id}")
+        return result
+    except Exception as e:
+        print(f"❌ Error saving badge: {e}")
+        return None
+
+def get_badges_by_user(user_id):
+    try:
+        badges = []
+        for badge in badges_collection.find({"userId": user_id}):
+            badges.append({
+                "id": str(badge["_id"]),
+                "badgeName": badge["badgeName"],
+                "badgeIcon": badge["badgeIcon"],
+            })
+        return badges
+    except Exception as e:
+        print(f"❌ Error fetching badges: {e}")
+        return []
+    
+def get_profile_by_id(user_id):
+    try:
+        user = users.find_one({"_id": ObjectId(user_id)})
+        if user:
+            return {
+                "id": str(user["_id"]),
+                "name": user["name"],
+                "email": user["email"],
+                # Add other fields as needed
+            }
+        else:
+            print("❌ User not found")
+            return None
+    except Exception as e:
+        print(f"❌ Error fetching profile: {e}")
+        return None
+        

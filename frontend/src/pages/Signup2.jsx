@@ -87,14 +87,14 @@ const Signup = () => {
     console.log("Form Data Submitted:", formData);
   
     try {
-      const response = await axiosInstance.post('/api/signup', {
+      const response = await axiosInstance.post('/api/auth/signup', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
       navigate('/login'); // Redirect to login page after successful signup
       console.log("Signup successful:", response.data);
-      alert(response.data); // Should say "Signup successful!" if all goes well
+      alert("Signup Successfull"); // Should say "Signup successful!" if all goes well
     } catch (error) {
       console.error("Signup failed:", error);
       alert("Signup failed: " + (error.response?.data || error.message));
