@@ -102,7 +102,7 @@ const Android = () => {
       }
 
       // Main Nodes
-      const Android = createBox("AI Engineer Development", 500, 70, true);
+      const Android = createBox("Android Development", 500, 70, true);
       const foundations = createBox("Programming Foundations", 500, 160, true);
       const languages = createBox("Programming Languages", 400, 320, true);
       const serverSide = createBox("Server-Side Frameworks", 500, 270, true);
@@ -380,12 +380,12 @@ const Android = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 text-gray-800">
+    <div className="bg-gray-100 text-gray-800 mt-10">
       <div className="bg-gradient-to-r from-gray-800 to-gray-700 py-16 text-center text-white relative overflow-hidden">
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold mb-4">AI Engineer Developer Roadmap 2025</h1>
-          <p className="text-xl text-gray-200 max-w-3xl mx-auto mb-8">
-            A comprehensive step-by-step guide to becoming a modern AI Engineer
+          <h1 className="text-4xl font-bold mb-4">Android Developer Roadmap 2025</h1>
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto mb-8" >
+            A comprehensive step-by-step guide to becoming a modern Android
             developer with the latest technologies and best practices
           </p>
 
@@ -433,10 +433,10 @@ const Android = () => {
        
         <div className="flowchart">
         <div id="paper" ref={paperRef}></div>
-        <div className="w-full h-[1600vh] bg-white">
+        <div className="w-full h-[1000vh] bg-white">
       <iframe
         className="w-full h-full bg-white"
-        src="/ai-engineer.pdf#toolbar=0"
+        src="/android.pdf#toolbar=0"
         type="application/pdf"
       />
     </div>
@@ -445,11 +445,11 @@ const Android = () => {
 
       <footer className="bg-gray-800 text-white py-10 text-center mt-10">
         <div className="max-w-3xl mx-auto px-4">
-          <h3 className="text-xl font-semibold mb-4">AI Engineer Developer Roadmap</h3>
+          <h3 className="text-xl font-semibold mb-4">Android Roadmap</h3>
           <p className="text-gray-400 mb-5">
             This roadmap aims to provide a comprehensive understanding of the
-            AI Engineer development landscape and guide you through the skills and
-            technologies needed to become a modern AI Engineer developer.
+            Android development landscape and guide you through the skills and
+            technologies needed to become a modern Android developer.
           </p>
           <div className="flex justify-center gap-8 mt-5">
             <a href="#" className="text-blue-400 hover:underline">Resources</a>

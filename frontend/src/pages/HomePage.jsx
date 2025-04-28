@@ -24,7 +24,7 @@ export default function VibrantHomePage() {
     backend: [
       { to: "/roadmap/backend", name: "Backend Developer", icon: "terminal", color: "blue" },
       { to: "/fullstack", name: "Full Stack Developer", icon: "layers", color: "sky" },
-      { to: "/postgresql", name: "PostgreSQL", icon: "storage", color: "cyan" }
+      { to: "/postgre", name: "PostgreSQL", icon: "storage", color: "cyan" }
     ],
     data: [
       { to: "/roadmap/ai-engineer", name: "AI Engineer", icon: "smart_toy", color: "emerald" },
@@ -35,7 +35,7 @@ export default function VibrantHomePage() {
     devops: [
       { to: "/devops", name: "DevOps", icon: "settings_suggest", color: "red" },
       { to: "/software-architect", name: "Software Architect", icon: "architecture", color: "rose" },
-      { to: "/cyber-security", name: "Cyber Security", icon: "security", color: "orange" }
+      { to: "/cyber", name: "Cyber Security", icon: "security", color: "orange" }
     ],
     mobile: [
       { to: "/ios", name: "iOS Developer", icon: "phone_iphone", color: "violet" },
@@ -48,7 +48,6 @@ export default function VibrantHomePage() {
       { to: "/product-manager", name: "Product Manager", icon: "inventory_2", color: "indigo" },
       { to: "/qa", name: "QA Engineer", icon: "check_circle", color: "sky" },
       { to: "/engineering-manager", name: "Engineering Manager", icon: "groups", color: "fuchsia" },
-      { to: "/developer-relations", name: "Developer Relations", icon: "campaign", color: "orange" }
     ]
   };
   

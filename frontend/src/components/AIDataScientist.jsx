@@ -380,7 +380,7 @@ const AIDataScientist = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 text-gray-800">
+    <div className="bg-gray-100 text-gray-800 mt-10">
       <div className="bg-gradient-to-r from-gray-800 to-gray-700 py-16 text-center text-white relative overflow-hidden">
         <div className="relative z-10">
           <h1 className="text-4xl font-bold mb-4">AI Engineer Developer Roadmap 2025</h1>
